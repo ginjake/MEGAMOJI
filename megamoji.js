@@ -251,6 +251,84 @@ function effect_zoom (keyframe, ctx, cellWidth, cellHeight) {
     ctx.transform(1 + zoom, 0, 0, 1 + zoom, - cellWidth / 2 * zoom, - cellHeight / 2 * zoom);
 }
 
+function effect_river (keyframe, ctx, cellWidth, cellHeight) {
+    bgColorHSV = rgb2hsv(
+      parseInt(ctx.fillStyle.substring(1,3), 16),
+      parseInt(ctx.fillStyle.substring(3,5), 16),
+      parseInt(ctx.fillStyle.substring(5,7), 16)
+    )
+    //1次元のままでは扱いにくいので(R,G,B,Alpha)に変換。
+    const parentLayerRGBA = ctx.getImageData(0, 0, cellWidth, cellHeight).data.reduce(function(previous, current) {
+      const enDivide = previous[previous.length - 1]
+      if (enDivide.length === 4) {
+          previous.push([current])
+          return previous
+      }
+      enDivide.push(current)
+      return previous
+    },[[]])
+    secondLayerImageData = parentLayerRGBA.map(function(element, index, array) {
+        return (index+(keyframe*40)) % 40 < 40 && (index+(keyframe*40)) % 40 >  20 ? hsvToRgb(bgColorHSV["h"]+180,1,1).concat(255) : element;
+        //return index % 40 < 40*keyframe ? hsvToRgb(bgColorHSV["h"]+180,1,1).concat(255) : element;
+    }).reduce( //一次元に戻す
+      function(accumulator, currentValue) {
+        return accumulator.concat(currentValue);
+      },
+      []
+    );
+    secondLayer = new ImageData(new Uint8ClampedArray(secondLayerImageData), cellWidth, cellHeight)
+    ctx.putImageData(secondLayer, 0, 0)
+}
+
+
+function effect_timeMachine (keyframe, ctx, cellWidth, cellHeight) {
+    //1次元のままでは扱いにくいので(R,G,B,Alpha)に変換。
+    const parentLayerRGBA = ctx.getImageData(0, 0, cellWidth, cellHeight).data.reduce(function(previous, current) {
+      const enDivide = previous[previous.length - 1]
+      if (enDivide.length === 4) {
+          previous.push([current])
+          return previous
+      }
+      enDivide.push(current)
+      return previous
+    },[[]])
+    secondLayerImageData = parentLayerRGBA.map(function(element, index, array) {
+        return index % 40 < 40*keyframe ? hsvToRgb(keyframe*360*4%360+180,1,1).concat(255) : element;
+    }).reduce( //一次元に戻す
+      function(accumulator, currentValue) {
+        return accumulator.concat(currentValue);
+      },
+      []
+    );
+    secondLayer = new ImageData(new Uint8ClampedArray(secondLayerImageData), cellWidth, cellHeight)
+    ctx.putImageData(secondLayer, 0, 0)
+}
+
+function effect_yabai (keyframe, ctx, cellWidth, cellHeight) {
+    //1次元のままでは扱いにくいので(R,G,B,Alpha)に変換。
+    const parentLayerRGBA = ctx.getImageData(0, 0, cellWidth, cellHeight).data.reduce(function(previous, current) {
+      const enDivide = previous[previous.length - 1]
+      if (enDivide.length === 4) {
+          previous.push([current])
+          return previous
+      }
+      enDivide.push(current)
+      return previous
+    },[[]])
+    secondLayerImageData = parentLayerRGBA.map(function(element, index, array) {
+        return (index+(keyframe*40)) % 40 < 40 && (index+(keyframe*40)) % 40 >  20 ? hsvToRgb(keyframe*360*4%360+180,1,1).concat(255) : element;
+        //return index % 40 < 40*keyframe ? hsvToRgb(bgColorHSV["h"]+180,1,1).concat(255) : element;
+    }).reduce( //一次元に戻す
+      function(accumulator, currentValue) {
+        return accumulator.concat(currentValue);
+      },
+      []
+    );
+    secondLayer = new ImageData(new Uint8ClampedArray(secondLayerImageData), cellWidth, cellHeight)
+    ctx.putImageData(secondLayer, 0, 0)
+}
+
+
 function animation_scroll (keyframe, ctx, image, offsetH, offsetV, width, height, cellWidth, cellHeight) {
     offsetH = (offsetH + image.naturalWidth * keyframe) % image.naturalWidth;
     ctx.drawImage(image, offsetH, offsetV, width, height, 0, 0, cellWidth, cellHeight);
@@ -329,6 +407,49 @@ function hsvToRgb(H,S,V) {
 
     return [R ,G, B];
 }
+
+//from https://stackoverflow.com/questions/8022885/rgb-to-hsv-color-in-javascript
+function rgb2hsv () {
+    var rr, gg, bb,
+        r = arguments[0] / 255,
+        g = arguments[1] / 255,
+        b = arguments[2] / 255,
+        h, s,
+        v = Math.max(r, g, b),
+        diff = v - Math.min(r, g, b),
+        diffc = function(c){
+            return (v - c) / 6 / diff + 1 / 2;
+        };
+
+    if (diff == 0) {
+        h = s = 0;
+    } else {
+        s = diff / v;
+        rr = diffc(r);
+        gg = diffc(g);
+        bb = diffc(b);
+
+        if (r === v) {
+            h = bb - gg;
+        }else if (g === v) {
+            h = (1 / 3) + rr - bb;
+        }else if (b === v) {
+            h = (2 / 3) + gg - rr;
+        }
+        if (h < 0) {
+            h += 1;
+        }else if (h > 1) {
+            h -= 1;
+        }
+    }
+    return {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        v: Math.round(v * 100)
+    };
+}
+
+
 function render_results () {
     var image        = $("#JS_base-image")[0];
     var v            = parseInt($("#JS_v").val());

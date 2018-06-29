@@ -251,83 +251,70 @@ function effect_zoom (keyframe, ctx, cellWidth, cellHeight) {
     ctx.transform(1 + zoom, 0, 0, 1 + zoom, - cellWidth / 2 * zoom, - cellHeight / 2 * zoom);
 }
 
+function effect_tiritiri (keyframe, ctx, cellWidth, cellHeight) {
+    bgColorRGB = [
+        parseInt(ctx.fillStyle.substring(1, 3), 16),
+        parseInt(ctx.fillStyle.substring(3, 5), 16),
+        parseInt(ctx.fillStyle.substring(5, 7), 16)
+    ]
+    const parentLayerRGBA = getImageDataFourDimension(ctx, cellWidth, cellHeight)
+    secondLayerImageData = restoreUint8ClampedArray(
+        parentLayerRGBA.map(function(element, index, array) {
+            return bgColorRGB.concat(parseInt(255 * Math.random()));
+        })
+    )
+    secondLayer = new ImageData(secondLayerImageData, cellWidth, cellHeight)
+    ctx.putImageData(secondLayer, 0, 0)
+}
+
+function effect_stripe (keyframe, ctx, cellWidth, cellHeight) {
+    const parentLayerRGBA = getImageDataFourDimension(ctx, cellWidth, cellHeight)
+    secondLayerImageData = restoreUint8ClampedArray(
+        parentLayerRGBA.map(function(element, index, array) {
+            return (index % cellHeight) % 3 == 1 ? [0, 0, 0, 0] : element;
+        })
+    )
+    secondLayer = new ImageData(secondLayerImageData, cellWidth, cellHeight)
+    ctx.putImageData(secondLayer, 0, 0)
+}
+
 function effect_river (keyframe, ctx, cellWidth, cellHeight) {
     bgColorHSV = rgb2hsv(
-      parseInt(ctx.fillStyle.substring(1,3), 16),
-      parseInt(ctx.fillStyle.substring(3,5), 16),
-      parseInt(ctx.fillStyle.substring(5,7), 16)
+        parseInt(ctx.fillStyle.substring(1, 3), 16),
+        parseInt(ctx.fillStyle.substring(3, 5), 16),
+        parseInt(ctx.fillStyle.substring(5, 7), 16)
     )
-    //1次元のままでは扱いにくいので(R,G,B,Alpha)に変換。
-    const parentLayerRGBA = ctx.getImageData(0, 0, cellWidth, cellHeight).data.reduce(function(previous, current) {
-      const enDivide = previous[previous.length - 1]
-      if (enDivide.length === 4) {
-          previous.push([current])
-          return previous
-      }
-      enDivide.push(current)
-      return previous
-    },[[]])
-    secondLayerImageData = parentLayerRGBA.map(function(element, index, array) {
-        return (index+(keyframe*40)) % 40 < 40 && (index+(keyframe*40)) % 40 >  20 ? hsvToRgb(bgColorHSV["h"]+180,1,1).concat(255) : element;
-        //return index % 40 < 40*keyframe ? hsvToRgb(bgColorHSV["h"]+180,1,1).concat(255) : element;
-    }).reduce( //一次元に戻す
-      function(accumulator, currentValue) {
-        return accumulator.concat(currentValue);
-      },
-      []
-    );
-    secondLayer = new ImageData(new Uint8ClampedArray(secondLayerImageData), cellWidth, cellHeight)
+    const parentLayerRGBA = getImageDataFourDimension(ctx, cellWidth, cellHeight)
+    secondLayerImageData = restoreUint8ClampedArray(
+        parentLayerRGBA.map(function(element, index, array) {
+            return (index+(keyframe*40)) % 40 < 40 && (index+(keyframe*40)) % 40 > 20 ? hsvToRgb(bgColorHSV["h"]+180, 1, 1).concat(255) : element;
+        })
+    )
+    secondLayer = new ImageData(secondLayerImageData, cellWidth, cellHeight)
     ctx.putImageData(secondLayer, 0, 0)
 }
-
 
 function effect_timeMachine (keyframe, ctx, cellWidth, cellHeight) {
-    //1次元のままでは扱いにくいので(R,G,B,Alpha)に変換。
-    const parentLayerRGBA = ctx.getImageData(0, 0, cellWidth, cellHeight).data.reduce(function(previous, current) {
-      const enDivide = previous[previous.length - 1]
-      if (enDivide.length === 4) {
-          previous.push([current])
-          return previous
-      }
-      enDivide.push(current)
-      return previous
-    },[[]])
-    secondLayerImageData = parentLayerRGBA.map(function(element, index, array) {
-        return index % 40 < 40*keyframe ? hsvToRgb(keyframe*360*4%360+180,1,1).concat(255) : element;
-    }).reduce( //一次元に戻す
-      function(accumulator, currentValue) {
-        return accumulator.concat(currentValue);
-      },
-      []
-    );
-    secondLayer = new ImageData(new Uint8ClampedArray(secondLayerImageData), cellWidth, cellHeight)
+    const parentLayerRGBA = getImageDataFourDimension(ctx, cellWidth, cellHeight)
+    secondLayerImageData = restoreUint8ClampedArray(
+        parentLayerRGBA.map(function(element, index, array) {
+            return index % 40 < 40 * keyframe ? hsvToRgb(keyframe * 360 * 4 % 360 + 180, 1, 1).concat(255) : element;
+        })
+    )
+    secondLayer = new ImageData(secondLayerImageData, cellWidth, cellHeight)
     ctx.putImageData(secondLayer, 0, 0)
 }
 
-function effect_yabai (keyframe, ctx, cellWidth, cellHeight) {
-    //1次元のままでは扱いにくいので(R,G,B,Alpha)に変換。
-    const parentLayerRGBA = ctx.getImageData(0, 0, cellWidth, cellHeight).data.reduce(function(previous, current) {
-      const enDivide = previous[previous.length - 1]
-      if (enDivide.length === 4) {
-          previous.push([current])
-          return previous
-      }
-      enDivide.push(current)
-      return previous
-    },[[]])
-    secondLayerImageData = parentLayerRGBA.map(function(element, index, array) {
-        return (index+(keyframe*40)) % 40 < 40 && (index+(keyframe*40)) % 40 >  20 ? hsvToRgb(keyframe*360*4%360+180,1,1).concat(255) : element;
-        //return index % 40 < 40*keyframe ? hsvToRgb(bgColorHSV["h"]+180,1,1).concat(255) : element;
-    }).reduce( //一次元に戻す
-      function(accumulator, currentValue) {
-        return accumulator.concat(currentValue);
-      },
-      []
-    );
-    secondLayer = new ImageData(new Uint8ClampedArray(secondLayerImageData), cellWidth, cellHeight)
+function effect_dizzy (keyframe, ctx, cellWidth, cellHeight) {
+    const parentLayerRGBA = getImageDataFourDimension(ctx, cellWidth, cellHeight)
+    secondLayerImageData = restoreUint8ClampedArray(
+      parentLayerRGBA.map(function(element, index, array) {
+          return (index+(keyframe*40)) % 40 < 40 && (index+(keyframe*40)) % 40 > 20 ? hsvToRgb(keyframe * 360 * 4 % 360 + 180, 1, 1).concat(255) : element;
+      })
+    )
+    secondLayer = new ImageData(secondLayerImageData, cellWidth, cellHeight)
     ctx.putImageData(secondLayer, 0, 0)
 }
-
 
 function animation_scroll (keyframe, ctx, image, offsetH, offsetV, width, height, cellWidth, cellHeight) {
     offsetH = (offsetH + image.naturalWidth * keyframe) % image.naturalWidth;
@@ -380,6 +367,32 @@ function render_result_cell (image, offsetH, offsetV, width, height, animation, 
 
         return "data:image/gif;base64," + encode64(encoder.stream().getData());
     }
+}
+
+//親レイヤーからピクセル情報を取得し、４次元を持つ配列として返す([R,G,B,Alpha])
+function getImageDataFourDimension(ctx, cellWidth, cellHeight) {
+    return ctx.getImageData(0, 0, cellWidth, cellHeight).data.reduce(function(previous, current) {
+        const enDivide = previous[previous.length - 1]
+        if (enDivide.length === 4) {
+            previous.push([current])
+            return previous
+        }
+        enDivide.push(current)
+        return previous
+    },[[]])
+}
+
+//4次元の配列を1次元に戻し、Uint8ClampedArray型で返す
+function restoreUint8ClampedArray (origin) {
+    return(
+        new Uint8ClampedArray(
+            origin.reduce( //一次元に戻す
+                function(accumulator, currentValue) {
+                    return accumulator.concat(currentValue);
+                }, []
+            )
+        )
+    )
 }
 
 //from https://qiita.com/hachisukansw/items/633d1bf6baf008e82847
@@ -448,7 +461,6 @@ function rgb2hsv () {
         v: Math.round(v * 100)
     };
 }
-
 
 function render_results () {
     var image        = $("#JS_base-image")[0];

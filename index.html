@@ -210,6 +210,10 @@
                   <option value="animation_push_vertical">押し出し（垂直）</option>
                   <option value="animation_ekken">謁見</option>
                   <option value="animation_ekken_vertical">謁見バーティカル</option>
+                  <option value="animation_divide">分割</option>
+                  <option value="animation_divide_back">分割(戻)</option>
+                  <option value="animation_lattice">格子</option>
+                  <option value="animation_lattice_back">格子(戻)</option>
                 </select>
                 <label class="form-checkbox">
                   <input type="checkbox" v-model="target.animationInvert">
@@ -225,6 +229,11 @@
                   <i class="form-icon"></i>
                   キラ (Chrome のみ)
                 </label>
+                <label class="form-checkbox form-inline">
+                 <input type="checkbox" v-model="target.effects" value="effect_signal">
+                 <i class="form-icon"></i>
+                 信号 (Chrome のみ)
+               </label>
                 <div><small>動き</small></div>
                 <label class="form-checkbox form-inline">
                   <input type="checkbox" v-model="target.effects" value="effect_gatagata">

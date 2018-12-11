@@ -151,6 +151,16 @@ function effect_tikatika (keyframe, ctx, cellWidth, cellHeight, background) {
     ctx.globalAlpha = Math.round(keyframe * 10 * 1.2) % 2 ;
 }
 
+function effect_signal (keyframe, ctx, cellWidth, cellHeight, background) {
+   if (keyframe >= 0.66) {
+       ctx.filter = "saturate(1000%) hue-rotate(0deg)";
+   } else if(keyframe >= 0.33) {
+       ctx.filter = "saturate(1000%) hue-rotate(120deg)";
+   } else {
+       ctx.filter = "saturate(1000%) hue-rotate(240deg)";
+   }
+}
+
 function effect_pyon (keyframe, ctx, cellWidth, cellHeight, background) {
     var resistance = 1.7; // バウンド時の強さ
     var y
@@ -432,6 +442,132 @@ function animation_push_horizontal (keyframe, ctx, image, offsetH, offsetV, widt
 function animation_push_vertical (keyframe, ctx, image, offsetH, offsetV, width, height, cellWidth, cellHeight) {
     keyframe = keyframe > 0.75 ? (keyframe - 0.75) * 4 : 0;
     animation_scroll_vertical(keyframe, ctx, image, offsetH, offsetV, width, height, cellWidth, cellHeight);
+}
+
+// 分割
+function animation_divide (keyframe, ctx, image, offsetH, offsetV, width, height, cellWidth, cellHeight) {
+   var division_num = 10;
+   var origin_width = image.naturalWidth / division_num;
+   var origin_height = image.naturalHeight / division_num;
+   var devide_width = cellWidth / division_num;
+   var devide_height = cellHeight / division_num;
+   var anim_size = keyframe * 1.8;
+   if (anim_size > 1.0) {
+       anim_size = 1.0;
+   }
+   for (var y = 0; y <= division_num; y++) {
+       for (var x = 0; x <= division_num; x++) {
+           ctx.drawImage(
+               image,
+               origin_width * x,
+               origin_height * y,
+               origin_width,
+               origin_height,
+               devide_width * x,
+               devide_height * y,
+               devide_width * anim_size,
+               devide_height * anim_size
+           );
+       }
+   }
+}
+
+// 分割(戻)
+function animation_divide_back (keyframe, ctx, image, offsetH, offsetV, width, height, cellWidth, cellHeight) {
+    var division_num = 10;
+    var origin_width = image.naturalWidth / division_num;
+    var origin_height = image.naturalHeight / division_num;
+    var devide_width = cellWidth / division_num;
+    var devide_height = cellHeight / division_num;
+    var anim_size;
+    if (keyframe < 0.5) {
+        anim_size = keyframe * 2;
+    } else {
+        anim_size = 2.0 - keyframe * 2;
+    }
+    for (var y = 0; y <= division_num; y++) {
+        for (var x = 0; x <= division_num; x++) {
+            ctx.drawImage(
+                image,
+                origin_width * x,
+                origin_height * y,
+                origin_width,
+                origin_height,
+                devide_width * x,
+                devide_height * y,
+                devide_width * anim_size,
+                devide_height * anim_size
+            );
+        }
+    }
+}
+
+// 格子
+function animation_lattice (keyframe, ctx, image, offsetH, offsetV, width, height, cellWidth, cellHeight) {
+   var anim_size = keyframe * 1.8
+   if (anim_size > 1.0) {
+       anim_size = 1.0;
+   }
+   var division_num = 10;
+   var origin_width = image.naturalWidth / division_num;
+   var origin_height = image.naturalHeight / division_num;
+   var devide_width = cellWidth / division_num;
+   var devide_height = cellHeight / division_num;
+
+   //中央に揃えるための座標を計算
+   var center_position_x = cellWidth / 2 * (1.0 - anim_size);
+   var center_position_y = cellHeight / 2 * (1.0 - anim_size);
+   for (var y = 0; y <= division_num; y++) {
+       for (var x = 0; x <= division_num; x++) {
+           ctx.drawImage(
+               image,
+               origin_width * x,
+               origin_height * y,
+               origin_width,
+               origin_height,
+               devide_width * x * anim_size + center_position_x,
+               devide_height * y * anim_size + center_position_y,
+               devide_width * anim_size * anim_size,
+               devide_height * anim_size * anim_size
+           );
+       }
+   }
+}
+
+// 格子(戻)
+function animation_lattice_back (keyframe, ctx, image, offsetH, offsetV, width, height, cellWidth, cellHeight) {
+    var anim_size;
+    if (keyframe < 0.3) {
+        anim_size = keyframe / 0.3;
+    } else if(keyframe > 0.6) {
+        anim_size = 2.0-keyframe / 0.6;
+    } else {
+        anim_size = 1.0;
+    }
+    var division_num = 10;
+    var origin_width = image.naturalWidth / division_num;
+    var origin_height = image.naturalHeight / division_num;
+    var devide_width = cellWidth / division_num;
+    var devide_height = cellHeight / division_num;
+
+    //中央に揃えるための座標を計算
+    var center_position_x = cellWidth / 2 * (1.0 - anim_size);
+    var center_position_y = cellHeight / 2 * (1.0 - anim_size);
+
+    for (var y = 0; y <= division_num; y++) {
+        for (var x = 0; x <=division_num; x++) {
+            ctx.drawImage(
+                image,
+                origin_width * x,
+                origin_height * y,
+                origin_width,
+                origin_height,
+                devide_width * x * anim_size + center_position_x,
+                devide_height * y * anim_size + center_position_y,
+                devide_width * anim_size * anim_size,
+                devide_height * anim_size * anim_size);
+        }
+    }
 }
 
 function render_result_cell (image, offsetH, offsetV, width, height, animation, animationInvert, effects, framerate, background) {
